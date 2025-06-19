@@ -1,0 +1,141 @@
+{
+  "products": [
+    {
+      "id": "1748245045196",
+      "name": "מחשבון",
+      "description": "",
+      "category": "office",
+      "sku": "65452",
+      "onSale": "true",
+      "image": "/uploads/1748245045187-PSTD.jpg",
+      "createdAt": "2025-05-26T07:37:25.197Z",
+      "updatedAt": "2025-05-26T07:37:25.197Z"
+    },
+    {
+      "id": "1748245091169",
+      "name": "מקרר",
+      "description": "",
+      "category": "home",
+      "sku": "",
+      "onSale": "true",
+      "image": null,
+      "createdAt": "2025-05-26T07:38:11.169Z",
+      "updatedAt": "2025-05-26T07:38:11.169Z"
+    },
+    {
+      "id": "1748247930496",
+      "name": "תנור",
+      "description": "תנור אירי בסגנון בנייה ייחודי",
+      "category": "cooking",
+      "sku": "TA17362",
+      "onSale": "true",
+      "image": "/uploads/1748247930495-duck.jpg",
+      "createdAt": "2025-05-26T08:25:30.497Z",
+      "updatedAt": "2025-05-26T08:25:30.497Z"
+    },
+    {
+      "id": "1748248961800",
+      "name": "מייבש",
+      "description": "40x100",
+      "category": "",
+      "sku": "ADER34555",
+      "onSale": "false",
+      "image": "/uploads/1748248961797-clinic.jpg",
+      "createdAt": "2025-05-26T08:42:41.800Z",
+      "updatedAt": "2025-05-26T08:42:41.800Z"
+    }
+  ],
+  "contactRequests": [],
+  "categories": {
+    "school": {
+      "name": "בית ספר",
+      "subcategories": {
+        "stationery": "כלי כתיבה",
+        "books": "ספרים",
+        "bags": "תיקים"
+      }
+    },
+    "carps": {
+      "name": "שטיחים",
+      "subcategories": {
+        "living": "סלון",
+        "bedroom": "חדר שינה",
+        "bathroom": "אמבטיה"
+      }
+    },
+    "kitchen": {
+      "name": "מטבח",
+      "subcategories": {
+        "appliances": "מכשירי חשמל",
+        "utensils": "כלי מטבח",
+        "storage": "אחסון"
+      }
+    },
+    "beds": {
+      "name": "מיטות",
+      "subcategories": {
+        "single": "יחיד",
+        "double": "זוגי",
+        "kids": "ילדים"
+      }
+    },
+    "office": {
+      "name": "משרד",
+      "subcategories": {
+        "furniture": "ריהוט",
+        "electronics": "אלקטרוניקה",
+        "supplies": "אספקה"
+      }
+    },
+    "home": {
+      "name": "בית",
+      "subcategories": {
+        "furniture": "ריהוט",
+        "decor": "עיצוב",
+        "storage": "אחסון"
+      }
+    },
+    "cooking": {
+      "name": "בישול",
+      "subcategories": {
+        "appliances": "מכשירי חשמל",
+        "utensils": "כלי מטבח",
+        "storage": "אחסון"
+      }
+    }
+  },
+  "contacts": [
+    {
+      "id": "1748535779386",
+      "name": "עומר יעקב",
+      "email": "omercnd40@gmail.com",
+      "message": "בדיקה בדיקה בדיקה",
+      "date": "2025-05-29T16:22:59.386Z",
+      "status": "new"
+    },
+    {
+      "id": "1748535780144",
+      "name": "עומר יעקב",
+      "email": "omercnd40@gmail.com",
+      "message": "בדיקה בדיקה בדיקה",
+      "date": "2025-05-29T16:23:00.144Z",
+      "status": "new"
+    },
+    {
+      "id": "1748536046793",
+      "name": "עומר יעקב",
+      "email": "omercnd40@gmail.com",
+      "message": "בדיקה בדיקה בדיקה",
+      "date": "2025-05-29T16:27:26.793Z",
+      "status": "new"
+    },
+    {
+      "id": "1748536048759",
+      "name": "עומר יעקב",
+      "email": "omercnd40@gmail.com",
+      "message": "בדיקה בדיקה בדיקה",
+      "date": "2025-05-29T16:27:28.759Z",
+      "status": "new"
+    }
+  ]
+}

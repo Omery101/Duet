@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>עגלת קניות</title>
+    <link rel="stylesheet" href="/catalog/catalog.css">
+    <link rel="stylesheet" href="cart.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-links">
+                <a href="/catalog/catalog.html"><i class="fas fa-store"></i> קטלוג מוצרים</a>
+                <a href="/about/about.html"><i class="fas fa-info-circle"></i> אודות</a>
+                <a href="/contact/contact.html"><i class="fas fa-envelope"></i> צור קשר</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="catalog-header">
+            <div class="header-content">
+                <div class="logo-container">
+                    <a href="/home-page/home-page.html" class="nav-logo">
+                        <img src="/uploads/logo/Logo-Duet.jpg" alt="Logo">
+                    </a>
+                </div>
+                <div class="header-text">
+                    <h2>עגלת קניות</h2>
+                    <p>פריטים בעגלת הקניות שלך</p>
+                    <div class="header-decoration">
+                        <span class="decoration-line"></span>
+                        <span class="decoration-dot"></span>
+                        <span class="decoration-line"></span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div id="cartSection" class="cart-section">
+                <div id="cartItems" class="cart-items">
+                    <!-- פריטי העגלה יוצגו כאן -->
+                </div>
+                
+                <div id="orderButtonContainer" class="order-button-container">
+                    <div class="button-group">
+                        <button type="button" class="submit-order" onclick="showOrderForm()">המשך להזמנה</button>
+                        <button type="button" class="clear-cart" onclick="confirmClearCart()">נקה עגלה</button>
+                    </div>
+                </div>
+                
+                <div id="orderFormContainer" class="order-form-container" style="display: none;">
+                    <form id="orderForm" class="order-form">
+                        <div class="form-group">
+                            <label for="customerName">שם מלא:</label>
+                            <input type="text" id="customerName" name="customerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerEmail">דוא"ל:</label>
+                            <input type="email" id="customerEmail" name="customerEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerPhone">טלפון:</label>
+                            <input type="tel" id="customerPhone" name="customerPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="customerAddress">כתובת למשלוח:</label>
+                            <textarea id="customerAddress" name="customerAddress" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="orderNotes">הערות נוספות:</label>
+                            <textarea id="orderNotes" name="orderNotes"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="submit-order">שלח הזמנה</button>
+                            <button type="button" class="back-to-cart" onclick="showCart()">חזרה לעגלה</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="cart.js"></script>
+</body>
+</html> 
