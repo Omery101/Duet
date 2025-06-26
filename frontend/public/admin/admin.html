@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול מוצרים - Duet</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="nav-links">
+                <a href="/catalog/catalog.html"><i class="fas fa-store"></i> קטלוג מוצרים</a>
+                <a href="/about/about.html"><i class="fas fa-info-circle"></i> אודות</a>
+                <a href="/contact/contact.html"><i class="fas fa-envelope"></i> צור קשר</a>
+                <a href="/admin/admin.html" class="active"><i class="fas fa-cog"></i> ניהול</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="catalog-header">
+            <div class="header-content">
+                <div class="logo-container">
+                    <a href="/home-page/home-page.html" class="nav-logo">
+                        <img src="/uploads/logo/Logo-Duet.jpg" alt="Logo">
+                    </a>
+                </div>
+                <div class="header-text">
+                    <h2>ניהול קטלוג מוצרים</h2>
+                    <p>ניהול מוצרים וקטגוריות</p>
+                    <div class="header-decoration">
+                        <span class="decoration-line"></span>
+                        <span class="decoration-dot"></span>
+                        <span class="decoration-line"></span>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- טופס התחברות -->
+        <div id="loginForm" class="login-form">
+            <h2>התחברות למערכת</h2>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="username">שם משתמש</label>
+                    <input type="email" id="username" required placeholder="הכנס כתובת אימייל">
+                </div>
+                <div class="form-group">
+                    <label for="password">סיסמה</label>
+                    <input type="password" id="password" required placeholder="הכנס סיסמה">
+                </div>
+                <button type="submit">התחבר</button>
+            </form>
+        </div>
+
+        <!-- פאנל ניהול -->
+        <div id="adminPanel" style="display: none;">
+            <!-- כותרת ראשית -->
+            <div class="section-title">
+                <h2>ניהול מוצרים וקטגוריות</h2>
+                <div class="admin-navigation">
+                    <button class="nav-btn active" data-section="products-section">
+                        <i class="fas fa-box"></i>
+                        מוצרים
+                    </button>
+                    <button class="nav-btn" data-section="categories-section">
+                        <i class="fas fa-tags"></i>
+                        קטגוריות
+                    </button>
+                </div>
+            </div>
+
+            <!-- חלק ראשון: ניהול מוצרים -->
+            <div id="products-section" class="management-section active-section">
+        <div class="section-header">
+                    <h3>ניהול מוצרים</h3>
+                    <p>הוספה ועריכה של מוצרים במערכת</p>
+        </div>
+
+                <!-- טופס הוספת מוצר -->
+                <div class="form-container">
+            <div id="productForm" class="product-form">
+                <div class="form-header">
+                    <h4>הוספת מוצר חדש</h4>
+                            <button class="toggle-form-btn">הוסף מוצר</button>
+                </div>
+                        <form id="productFormElement" style="display: none;">
+                    <div class="form-group">
+                        <label for="productName">שם המוצר</label>
+                        <input type="text" id="productName" required>
+                    </div>
+                            
+                    <div class="form-group">
+                        <label for="productDesc">תיאור</label>
+                        <textarea id="productDesc" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="productCategory">קטגוריה</label>
+                        <select id="productCategory" required>
+                            <option value="">בחר קטגוריה</option>
+                        </select>
+                    </div>
+                            <div class="form-group">
+                                <label for="productImage">תמונה</label>
+                                <input type="file" id="productImage" accept="image/*">
+                                <div id="imagePreview" class="image-preview">
+                                    <img id="previewImg" style="display: none;">
+                                    <div class="no-image">אין תמונה</div>
+                                </div>
+                                <button type="button" class="remove-image-btn">הסר תמונה</button>
+                            </div>
+                    <div class="form-group">
+                        <label for="productSku">מק"ט</label>
+                        <input type="text" id="productSku" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productOnSale">מוצר במבצע</label>
+                        <input type="checkbox" id="productOnSale">
+                    </div>
+                    <div class="form-group">
+                                <label for="hasMultipleTypes">פריט מרובה סוגים </label>
+                                <input type="checkbox" id="hasMultipleTypes">
+                        </div>
+                            <div id="productTypesContainer" style="display: none;">
+                                <div class="product-types-header">
+                                    <h4>סוגי המוצר</h4>
+                                    <button type="button" class="add-type-btn">
+                                        <i class="fas fa-plus"></i> הוסף סוג מוצר
+                                    </button>
+                    </div>
+                                <div id="productTypesList" class="product-types-list">
+                                    <!-- כאן יוצגו סוגי המוצר -->
+                    </div>
+            </div>
+
+                            <div class="form-actions">
+                                <button type="submit">שמור מוצר</button>
+                </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- טבלת מוצרים -->
+                <div class="table-container full-width">
+                    <div class="section-header">
+                        <h3>טבלת מוצרים</h3>
+                        <p>עריכה והסרה של מוצרים במערכת</p>
+                    </div>
+                    
+                    <table id="productsTable" class="products-table">
+                        <thead>
+                            <tr>
+                                <th>שם המוצר</th>
+                                <th>תיאור</th>
+                                <th>קטגוריה</th>
+                                <th>מק"ט</th>
+                                <th>תמונה</th>
+                                <th>במבצע</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- כאן יוצגו המוצרים -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- חלק שני: ניהול קטגוריות -->
+            <div id="categories-section" class="management-section" style="display: none;">
+                <div class="section-header">
+                    <h3>ניהול קטגוריות</h3>
+                    <p>הוספה ועריכה של קטגוריות במערכת</p>
+                </div>
+
+                <!-- טופס הוספת קטגוריה -->
+                <div class="form-container">
+                    <div class="category-management">
+                        <div class="form-header">
+                            <h4>הוספת קטגוריה חדשה</h4>
+                            <button class="toggle-form-btn">הוסף קטגוריה</button>
+                        </div>
+                        
+                        <!-- הוספת קטגוריה חדשה -->
+                        <div class="category-form" style="display: none;">
+                            <form id="categoryForm">
+                                <div class="form-group">
+                                    <label for="newCategoryName">שם הקטגוריה</label>
+                                    <input type="text" id="newCategoryName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="newCategoryCode">קוד קטגוריה (באנגלית)</label>
+                                    <input type="text" id="newCategoryCode" required>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="save-btn">שמור קטגוריה</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- רשימת קטגוריות -->
+                <div class="table-container full-width">
+                <div class="category-list">
+                    <div class="section-header">
+                            <h3>רשימת קטגוריות</h3>
+                            <p>עריכה והסרה של קטגוריות במערכת</p>
+                    </div>
+                    <div id="categoriesList" class="categories-grid">
+                        <!-- כאן יוצגו הקטגוריות -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- כפתור התנתק צף -->
+    <button id="logoutBtn" class="floating-logout" style="display: none;">
+        <i class="fas fa-sign-out-alt"></i>
+        התנתק
+    </button>
+
+    <script src="admin.js"></script>
+</body>
+</html> 
