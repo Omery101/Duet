@@ -12,6 +12,8 @@ const ordersRouter = require('./routes/orders');
 const contactRouter = require('./routes/contact');
 const categoriesRouter = require('./routes/categories');
 const config = require('./config');
+console.log('👀 ADMIN_USERNAME:', config.ADMIN_USERNAME);
+console.log('👀 ADMIN_PASSWORD:', config.ADMIN_PASSWORD);
 
 // בדיקת משתני סביבה נדרשים
 const requiredEnvVars = [
@@ -65,7 +67,10 @@ mongoose.connection.on('reconnected', () => {
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'https://duet-frontend.onrender.com',
+    credentials: true
+  }));  
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));
@@ -216,3 +221,5 @@ const PORT = config.PORT;
 app.listen(PORT, () => {
     console.log(`🚀 השרת פועל על פורט ${PORT}`);
 }); 
+
+  

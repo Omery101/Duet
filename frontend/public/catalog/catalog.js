@@ -350,7 +350,29 @@ function displayProducts(products) {
         if (product.image) {
             imagePath = product.image.startsWith('/uploads/products/') ? product.image : '/uploads/products/' + product.image.replace(/^\/uploads\//, '');
         }
-        if (product.hasMultipleTypes && product.productTypes && product.productTypes.length > 0) {
+        // --- תמיכה בגלריה עבור מערך תמונות ---
+        if (Array.isArray(product.images) && product.images.length > 1) {
+            // גלריה עבור מערך תמונות רגיל
+            const images = product.images.map((img, idx) => {
+                let imgPath = img.startsWith('/uploads/products/') ? img : '/uploads/products/' + img.replace(/^\/uploads\//, '');
+                return `
+                    <div class="product-image-thumb${idx === 0 ? ' active' : ''}" data-img-idx="${idx}">
+                        <img src="${imgPath}" alt="${product.name} ${idx + 1}" class="product-image">
+                    </div>
+                `;
+            }).join('');
+            let firstImgPath = product.images[0].startsWith('/uploads/products/') ? product.images[0] : '/uploads/products/' + product.images[0].replace(/^\/uploads\//, '');
+            imageGallery = `
+                <div class="product-gallery">
+                    <div class="gallery-main">
+                        <img src="${firstImgPath}" alt="${product.name}" class="product-image">
+                    </div>
+                    <div class="gallery-thumbnails">
+                        ${images}
+                    </div>
+                </div>
+            `;
+        } else if (product.hasMultipleTypes && product.productTypes && product.productTypes.length > 0) {
             const defaultType = product.productTypes.find(type => type.isDefault) || product.productTypes[0];
             const images = product.productTypes.map(type => {
                 let typeImagePath = '';
@@ -384,7 +406,7 @@ function displayProducts(products) {
                 '<div class="no-image">אין תמונה</div>';
         }
         return `
-            <div class="product-card" data-sku="${product.sku}" data-category="${product.category}" data-sale="${product.onSale || false}">
+            <div class="product-card" data-sku="${product.sku}" data-category="${product.category}" data-sale="${product.onSale || false}" data-product='${JSON.stringify(product).replace(/'/g, "&#39;")}' >
                 ${product.onSale ? '<span class="sale-badge">מבצע!</span>' : ''}
                 <button class="favorite-button ${favorites.includes(product.sku) ? 'active' : ''}" onclick="toggleFavorite('${product.sku}')">
                     <i class="fas fa-star"></i>
@@ -395,24 +417,116 @@ function displayProducts(products) {
                     <p class="product-description">${product.desc || product.description}</p>
                     <span class="product-category">${getCategoryDisplayName(product.category)}</span>
                     <p class="product-sku">מק"ט: ${product.sku}</p>
+                    <div class="cart-buttons-group">
                     <button class="order-button" onclick="addToCart('${product.sku}')">הוסף לעגלה</button>
+                        <button class="remove-cart-button" onclick="removeFromCartBySku('${product.sku}')">הסר מהעגלה</button>
+                    </div>
                 </div>
             </div>
         `;
     }).join('');
     // מאזיני גלריה
     document.querySelectorAll('.product-gallery').forEach(gallery => {
-        const thumbnails = gallery.querySelectorAll('.gallery-thumbnails .product-type-image');
+        // עבור productTypes (קיים)
+        const thumbnailsTypes = gallery.querySelectorAll('.gallery-thumbnails .product-type-image');
         const mainImage = gallery.querySelector('.gallery-main img');
-        thumbnails.forEach(thumb => {
+        thumbnailsTypes.forEach(thumb => {
             thumb.addEventListener('click', () => {
-                thumbnails.forEach(t => t.classList.remove('active'));
+                thumbnailsTypes.forEach(t => t.classList.remove('active'));
                 thumb.classList.add('active');
                 mainImage.src = thumb.querySelector('img').src;
                 mainImage.alt = thumb.querySelector('.type-name').textContent;
             });
         });
+        // עבור מערך תמונות רגיל
+        const thumbnailsImages = gallery.querySelectorAll('.gallery-thumbnails .product-image-thumb');
+        thumbnailsImages.forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                thumbnailsImages.forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+                mainImage.src = thumb.querySelector('img').src;
+                mainImage.alt = thumb.querySelector('img').alt;
+            });
+        });
     });
+    // מאזין לפתיחת פופאפ תמונה בלחיצה על כרטיס מוצר
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // לא להפעיל אם לוחצים על כפתור/אייקון
+            if (e.target.closest('button') || e.target.closest('.favorite-button')) return;
+            const product = JSON.parse(this.getAttribute('data-product').replace(/&#39;/g, "'"));
+            openProductModal(product);
+        });
+    });
+}
+
+// --- פופאפ מוצר ---
+function openProductModal(product) {
+    document.getElementById('productModal')?.remove();
+    let modalHtml = `<div id="productModal" class="product-modal-overlay">
+        <div class="product-modal">
+            <button class="close-modal">×</button>`;
+    if (product.hasMultipleTypes && product.productTypes && product.productTypes.length > 0) {
+        // דפדוף בין סוגי מוצר עם חצים
+        const defaultIdx = product.productTypes.findIndex(type => type.isDefault) >= 0 ? product.productTypes.findIndex(type => type.isDefault) : 0;
+        const types = product.productTypes;
+        const getImgPath = t => t.image ? (t.image.startsWith('/uploads/products/') ? t.image : '/uploads/products/' + t.image.replace(/^\/uploads\//, '')) : '';
+        modalHtml += `
+            <div class="modal-gallery">
+                <button class="modal-arrow modal-arrow-right">&#8592;</button>
+                <img src="${getImgPath(types[defaultIdx])}" alt="${product.name}" class="modal-main-image" data-idx="${defaultIdx}">
+                <button class="modal-arrow modal-arrow-left">&#8594;</button>
+                <div class="modal-type-name">${types[defaultIdx].name || ''}</div>
+            </div>
+        `;
+    } else if (Array.isArray(product.images) && product.images.length > 1) {
+        // דפדוף בין תמונות רגילות (אם יש)
+        let firstImgPath = product.images[0].startsWith('/uploads/products/') ? product.images[0] : '/uploads/products/' + product.images[0].replace(/^\/uploads\//, '');
+        modalHtml += `
+            <div class="modal-gallery">
+                <img src="${firstImgPath}" alt="${product.name}" class="modal-main-image">
+            </div>
+        `;
+    } else {
+        let imgPath = product.image ? (product.image.startsWith('/uploads/products/') ? product.image : '/uploads/products/' + product.image.replace(/^\/uploads\//, '')) : '';
+        modalHtml += `<div class="modal-gallery">
+            <img src="${imgPath}" alt="${product.name}" class="modal-main-image">
+        </div>`;
+    }
+    modalHtml += `<div class="modal-info">
+        <h2>${product.name}</h2>
+        <p>${product.desc || product.description || ''}</p>
+        <span class="product-category">${getCategoryDisplayName(product.category)}</span>
+        <p class="product-sku">מק"ט: ${product.sku}</p>
+    </div>
+    </div></div>`;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    document.querySelector('#productModal .close-modal').onclick = closeProductModal;
+    document.getElementById('productModal').onclick = function(e) {
+        if (e.target === this) closeProductModal();
+    };
+    // דפדוף בין סוגי מוצר
+    if (product.hasMultipleTypes && product.productTypes && product.productTypes.length > 0) {
+        const types = product.productTypes;
+        let idx = product.productTypes.findIndex(type => type.isDefault) >= 0 ? product.productTypes.findIndex(type => type.isDefault) : 0;
+        const mainImg = document.querySelector('#productModal .modal-main-image');
+        const typeNameDiv = document.querySelector('#productModal .modal-type-name');
+        document.querySelector('#productModal .modal-arrow-left').onclick = function(e) {
+            e.stopPropagation();
+            idx = (idx + 1) % types.length;
+            mainImg.src = types[idx].image ? (types[idx].image.startsWith('/uploads/products/') ? types[idx].image : '/uploads/products/' + types[idx].image.replace(/^\/uploads\//, '')) : '';
+            typeNameDiv.textContent = types[idx].name || '';
+        };
+        document.querySelector('#productModal .modal-arrow-right').onclick = function(e) {
+            e.stopPropagation();
+            idx = (idx - 1 + types.length) % types.length;
+            mainImg.src = types[idx].image ? (types[idx].image.startsWith('/uploads/products/') ? types[idx].image : '/uploads/products/' + types[idx].image.replace(/^\/uploads\//, '')) : '';
+            typeNameDiv.textContent = types[idx].name || '';
+        };
+    }
+}
+function closeProductModal() {
+    document.getElementById('productModal')?.remove();
 }
 
 // פונקציה לטעינת קטגוריות מהשרת
@@ -770,4 +884,22 @@ function clearCart() {
     localStorage.removeItem('cart');
     updateCartCount();
     showCart();
+}
+
+// פונקציה חדשה: הסרת מוצר מהעגלה לפי sku
+function removeFromCartBySku(sku) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const itemIndex = cart.findIndex(item => item.sku === sku);
+    if (itemIndex === -1) {
+        showMessage('המוצר אינו נמצא בעגלה', 'error');
+        return;
+    }
+    if (cart[itemIndex].quantity > 1) {
+        cart[itemIndex].quantity -= 1;
+    } else {
+        cart.splice(itemIndex, 1);
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+    showMessage('המוצר הוסר מהעגלה', 'success');
 }

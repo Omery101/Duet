@@ -519,11 +519,16 @@ function setupProductTableFilters() {
     if (!filterRow) {
         filterRow = document.createElement('tr');
         filterRow.className = 'filter-row';
+        // קבלת קטגוריות
+        let cats = [];
+        try {
+            cats = categories && categories.length ? categories : JSON.parse(localStorage.getItem('categories')) || [];
+        } catch (e) { cats = []; }
         filterRow.innerHTML = `
             <td><input type="text" id="filterName" placeholder="חפש שם"></td>
             <td><input type="text" id="filterDesc" placeholder="חפש תיאור"></td>
-            <td><input type="text" id="filterCategory" placeholder="חפש קטגוריה"></td>
-            <td><input type="text" id="filterSku" placeholder="חפש מק"ט"></td>
+            <td><select id="filterCategory"><option value="">כל הקטגוריות</option>${cats.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('')}</select></td>
+            <td><input type="text" id="filterSku" placeholder="חפש מק''ט"></td>
             <td></td>
             <td><select id="filterOnSale"><option value="">הכל</option><option value="כן">כן</option><option value="לא">לא</option></select></td>
             <td></td>
@@ -532,16 +537,28 @@ function setupProductTableFilters() {
         // מאזינים
         document.getElementById('filterName').addEventListener('input', filterProductTable);
         document.getElementById('filterDesc').addEventListener('input', filterProductTable);
-        document.getElementById('filterCategory').addEventListener('input', filterProductTable);
+        document.getElementById('filterCategory').addEventListener('change', filterProductTable);
         document.getElementById('filterSku').addEventListener('input', filterProductTable);
         document.getElementById('filterOnSale').addEventListener('change', filterProductTable);
+    } else {
+        // עדכון רשימת הקטגוריות אם צריך (למשל אחרי הוספה/מחיקה)
+        const filterCategory = filterRow.querySelector('#filterCategory');
+        if (filterCategory) {
+            let cats = [];
+            try {
+                cats = categories && categories.length ? categories : JSON.parse(localStorage.getItem('categories')) || [];
+            } catch (e) { cats = []; }
+            const currentVal = filterCategory.value;
+            filterCategory.innerHTML = `<option value="">כל הקטגוריות</option>${cats.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('')}`;
+            filterCategory.value = currentVal;
+        }
     }
 }
 
 function filterProductTable() {
     const nameVal = document.getElementById('filterName').value.toLowerCase();
     const descVal = document.getElementById('filterDesc').value.toLowerCase();
-    const catVal = document.getElementById('filterCategory').value.toLowerCase();
+    const catVal = document.getElementById('filterCategory').value;
     const skuVal = document.getElementById('filterSku').value.toLowerCase();
     const onSaleVal = document.getElementById('filterOnSale').value;
     const rows = document.querySelectorAll('#productsTable tbody tr');
@@ -549,13 +566,13 @@ function filterProductTable() {
         const tds = row.querySelectorAll('td');
         const name = tds[0]?.textContent?.toLowerCase() || '';
         const desc = tds[1]?.textContent?.toLowerCase() || '';
-        const cat = tds[2]?.textContent?.toLowerCase() || '';
+        const cat = tds[2]?.textContent || '';
         const sku = tds[3]?.textContent?.toLowerCase() || '';
         const onSale = tds[5]?.textContent?.trim() || '';
         let show = true;
         if (nameVal && !name.includes(nameVal)) show = false;
         if (descVal && !desc.includes(descVal)) show = false;
-        if (catVal && !cat.includes(catVal)) show = false;
+        if (catVal && cat !== catVal && catVal !== '') show = false;
         if (skuVal && !sku.includes(skuVal)) show = false;
         if (onSaleVal && onSale !== onSaleVal) show = false;
         row.style.display = show ? '' : 'none';
@@ -817,9 +834,6 @@ function renderProductTypes() {
                         ${type.image ? `<img src="${type.image}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;">` : '<div class="no-image">אין תמונה</div>'}
                 </div>
             </div>
-                <div class="form-group">
-                    <label><input type="radio" name="defaultType" ${type.isDefault ? 'checked' : ''} data-idx="${idx}"> ברירת מחדל</label>
-            </div>
         </div>
         <div class="product-type-actions">
                 <button type="button" class="remove-type-btn" data-idx="${idx}">הסר</button>
@@ -847,14 +861,6 @@ function renderProductTypes() {
         };
         reader.readAsDataURL(file);
     }
-        });
-    });
-    // מאזינים לברירת מחדל
-    list.querySelectorAll('input[type="radio"][name="defaultType"]').forEach(radio => {
-        radio.addEventListener('change', function() {
-            const idx = +this.dataset.idx;
-            productTypes.forEach((t, i) => t.isDefault = (i === idx));
-            renderProductTypes();
         });
     });
     // מאזינים לכפתור הסרה

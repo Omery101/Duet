@@ -30,16 +30,20 @@ async function displayCart() {
     
     // טעינת פרטי המוצרים מהשרת
     for (const item of cart) {
-        const productDetails = await loadProductDetails(item.sku);
+        let productDetails = await loadProductDetails(item.sku);
+        // אם לא הצלחנו לטעון מהשרת, נשתמש בפרטים מהעגלה
         if (!productDetails) {
-            continue; // דילוג על מוצר שלא נמצא
+            productDetails = {
+                name: item.name || 'מוצר לא ידוע',
+                sku: item.sku,
+                image: item.image || 'placeholder.jpg'
+            };
         }
-        
         totalItemsCount += item.quantity;
         itemsHTML += `
             <div class="cart-item" data-sku="${item.sku}">
                 <div class="cart-item-image-container">
-                    <img src="${productDetails.image}" alt="${productDetails.name}" class="cart-item-image" onerror="this.onerror=null; this.src='placeholder.jpg';">
+                    <img src="${productDetails.image || 'placeholder.jpg'}" alt="${productDetails.name}" class="cart-item-image" onerror="this.onerror=null; this.src='placeholder.jpg';">
                 </div>
                 <div class="cart-item-details">
                     <h3 class="cart-item-name">${productDetails.name}</h3>
