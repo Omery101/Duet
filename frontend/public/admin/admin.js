@@ -11,6 +11,13 @@ let sessionTimeout = 10 * 60 * 1000; // 10 דקות
 let isRememberMeChecked = false;
 let lastActivityTime = Date.now();
 
+document.addEventListener('DOMContentLoaded', () => {
+    const toggleBtn = document.getElementById('togglePassword');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', togglePasswordVisibility);
+    }
+  });
+
 // אתחול כל הפונקציונליות
 
 // פונקציה לבדיקת אימות ראשונית
@@ -160,39 +167,48 @@ async function login() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
     const rememberMe = document.getElementById('rememberMe').checked;
-    
+
     // הסתרת הודעות שגיאה קודמות
     document.getElementById('loginError').style.display = 'none';
     document.getElementById('passwordError').style.display = 'none';
-    
+
     if (!username || !password) {
         showLoginError('יש למלא את כל השדות');
         return;
     }
-    
+
     // בדיקת שפה בעברית
     if (!validatePasswordLanguage()) {
         return;
     }
+
     try {
         const serverConnected = await checkServerConnection();
         if (!serverConnected) {
             showMessage('אין חיבור לשרת, בדוק שהשרת פועל', 'error');
             return;
         }
+
         const response = await fetch('/api/admin/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
         });
+
         const data = await response.json();
+
         if (!response.ok) {
             if (response.status === 429) {
                 showMessage('יותר מדי ניסיונות התחברות, נסה שוב בעוד 15 דקות', 'error');
             } else {
-            throw new Error(data.message || 'שגיאת התחברות');
+                throw new Error(data.message || 'שגיאת התחברות');
+            }
+            return;
         }
-        return;
+
+        // אם הצליח
+        showLoginError('התחברות הצליחה', data, rememberMe);
+
     } catch (error) {
         console.error('שגיאת התחברות:', error);
         showLoginError(error.message || 'שגיאת התחברות');
@@ -200,31 +216,37 @@ async function login() {
     }
 }
 
+
 // פונקציה להצגת שגיאות התחברות
-function showLoginError(message) {
+async function showLoginError(message, data = {}, rememberMe = false) {
     const loginError = document.getElementById('loginError');
     const errorSpan = loginError.querySelector('span');
     errorSpan.textContent = message;
     loginError.style.display = 'flex';
-}
+
+    try {
         if (data.token) {
             saveAdminToken(data.token);
             
-            // שמירת העדפת "הישאר מחובר"
+            // שמירת מצב "הישאר מחובר"
             isRememberMeChecked = rememberMe;
             localStorage.setItem('rememberMe', rememberMe.toString());
-            
+
             // הגדרת טיימר ניתוק אוטומטי
             if (!rememberMe) {
                 resetInactivityTimer();
                 setupActivityListeners();
             }
+
+            // מעבר לממשק ניהול
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             document.querySelector('.floating-logout').style.display = 'flex';
-            // סדר טעינה: מוצרים -> קטגוריות
+
+            // טעינת מוצרים וקטגוריות
             await loadProducts();
             await loadCategories();
+
             showMessage('התחברת בהצלחה', 'success');
         } else {
             throw new Error('לא התקבל טוקן מהשרת');
@@ -233,7 +255,8 @@ function showLoginError(message) {
         console.error('שגיאה בהתחברות:', error);
         showMessage(error.message, 'error');
     }
-}
+} 
+
 
 // פונקציית התנתקות
 function logout() {

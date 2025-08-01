@@ -12,8 +12,6 @@ const ordersRouter = require('./routes/orders');
 const contactRouter = require('./routes/contact');
 const categoriesRouter = require('./routes/categories');
 const config = require('./config');
-console.log('👀 ADMIN_USERNAME:', config.ADMIN_USERNAME);
-console.log('👀 ADMIN_PASSWORD:', config.ADMIN_PASSWORD);
 
 // בדיקת משתני סביבה נדרשים
 const requiredEnvVars = [

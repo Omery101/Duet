@@ -1,5 +1,4 @@
 // טיפול בתפריט המבורגר וסקציות + נגן מוזיקה
-
 document.addEventListener('DOMContentLoaded', function() {
     // --- Music Player ---
     const musicToggle = document.getElementById('musicToggle');
