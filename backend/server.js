@@ -68,9 +68,11 @@ mongoose.connection.on('reconnected', () => {
 
 // Middleware
 app.use(cors({
-    origin: 'https://duet-frontend.onrender.com',
+    origin: config.NODE_ENV === 'production' 
+        ? ['https://duet-frontend.onrender.com', 'https://yourdomain.com'] 
+        : 'http://localhost:3000',
     credentials: true
-  }));  
+}));  
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));
@@ -173,13 +175,34 @@ app.get('/api/config', (req, res) => {
     res.json({
         API_BASE_URL: `${req.protocol}://${req.get('host')}/api`,
         UPLOADS_PATH: '/uploads/',
-        NODE_ENV: config.NODE_ENV
+        NODE_ENV: config.NODE_ENV,
+        FEATURES: {
+            AUTO_LOGOUT: true,
+            PASSWORD_VISIBILITY: true,
+            HEBREW_VALIDATION: true,
+            REMEMBER_ME: true
+        }
     });
 });
 
 // בדיקת תקינות טוקן מנהל
 app.get('/api/admin/verify', authenticateAdmin, (req, res) => {
     res.json({ success: true, message: 'הטוקן תקין' });
+});
+
+// נקודת קצה לבדיקת גרסה ופיצ'רים
+app.get('/api/version', (req, res) => {
+    res.json({
+        version: '2.0.0',
+        features: {
+            autoLogout: true,
+            passwordVisibility: true,
+            hebrewValidation: true,
+            rememberMe: true
+        },
+        environment: config.NODE_ENV,
+        timestamp: new Date().toISOString()
+    });
 });
 
 // הוספת נקודת קצה לאיפוס סיסמה (פשוטה, ללא bcrypt)

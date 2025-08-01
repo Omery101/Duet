@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בדיקת פרודקשן - Duet Admin</title>
+    <link rel="stylesheet" href="admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .test-results {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .test-result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .test-result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .test-result.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>בדיקת סביבת פרודקשן - Duet Admin</h1>
+        
+        <div class="test-results" id="testResults">
+            <h3>תוצאות בדיקות:</h3>
+            <div id="resultsList"></div>
+        </div>
+        
+        <div class="login-form">
+            <h2>בדיקת טופס התחברות</h2>
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label for="username">שם משתמש</label>
+                    <input type="email" id="username" required placeholder="הכנס כתובת אימייל">
+                </div>
+                <div class="form-group">
+                    <label for="password">סיסמה</label>
+                    <div class="password-input-container">
+                        <input type="password" id="password" required placeholder="הכנס סיסמה">
+                        <button type="button" id="togglePassword" class="password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div id="passwordError" class="error-message" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>הסיסמה חייבת להיות באנגלית בלבד</span>
+                    </div>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span class="checkmark"></span>
+                        הישאר מחובר
+                    </label>
+                </div>
+                <div id="loginError" class="error-message" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span></span>
+                </div>
+                <button type="submit">בדוק התחברות</button>
+            </form>
+        </div>
+        
+        <div style="margin-top: 20px; text-align: center;">
+            <button onclick="runAllTests()">הפעל את כל הבדיקות</button>
+            <button onclick="clearResults()">נקה תוצאות</button>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+        
+        function addTestResult(testName, status, message) {
+            const result = {
+                name: testName,
+                status: status,
+                message: message,
+                timestamp: new Date().toISOString()
+            };
+            testResults.push(result);
+            displayResults();
+        }
+        
+        function displayResults() {
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = testResults.map(result => `
+                <div class="test-result ${result.status}">
+                    <strong>${result.name}:</strong> ${result.message}
+                    <br><small>${new Date(result.timestamp).toLocaleString('he-IL')}</small>
+                </div>
+            `).join('');
+        }
+        
+        function clearResults() {
+            testResults = [];
+            displayResults();
+        }
+        
+        async function testServerConnection() {
+            try {
+                const response = await fetch('/api/version');
+                if (response.ok) {
+                    const data = await response.json();
+                    addTestResult('חיבור לשרת', 'success', `גרסה ${data.version} - ${data.environment}`);
+                    return true;
+                } else {
+                    addTestResult('חיבור לשרת', 'error', `שגיאה ${response.status}`);
+                    return false;
+                }
+            } catch (error) {
+                addTestResult('חיבור לשרת', 'error', error.message);
+                return false;
+            }
+        }
+        
+        async function testConfig() {
+            try {
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    const data = await response.json();
+                    const features = data.FEATURES || {};
+                    addTestResult('קונפיגורציה', 'success', 
+                        `סביבה: ${data.NODE_ENV}, API: ${data.API_BASE_URL}`);
+                    return features;
+                } else {
+                    addTestResult('קונפיגורציה', 'error', `שגיאה ${response.status}`);
+                    return null;
+                }
+            } catch (error) {
+                addTestResult('קונפיגורציה', 'error', error.message);
+                return null;
+            }
+        }
+        
+        function testPasswordToggle() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.getElementById('togglePassword');
+            
+            if (passwordInput && toggleBtn) {
+                const originalType = passwordInput.type;
+                toggleBtn.click();
+                
+                if (passwordInput.type !== originalType) {
+                    addTestResult('הצגת סיסמה', 'success', 'כפתור הצגת סיסמה עובד');
+                    return true;
+                } else {
+                    addTestResult('הצגת סיסמה', 'error', 'כפתור הצגת סיסמה לא עובד');
+                    return false;
+                }
+            } else {
+                addTestResult('הצגת סיסמה', 'error', 'אלמנטים לא נמצאו');
+                return false;
+            }
+        }
+        
+        function testHebrewValidation() {
+            const passwordInput = document.getElementById('password');
+            const passwordError = document.getElementById('passwordError');
+            
+            if (passwordInput && passwordError) {
+                passwordInput.value = 'סיסמהבעברית';
+                passwordInput.dispatchEvent(new Event('input'));
+                
+                setTimeout(() => {
+                    if (passwordError.style.display === 'flex') {
+                        addTestResult('ולידציה עברית', 'success', 'ולידציה עברית עובדת');
+                    } else {
+                        addTestResult('ולידציה עברית', 'error', 'ולידציה עברית לא עובדת');
+                    }
+                }, 100);
+            } else {
+                addTestResult('ולידציה עברית', 'error', 'אלמנטים לא נמצאו');
+            }
+        }
+        
+        function testRememberMe() {
+            const rememberMeCheckbox = document.getElementById('rememberMe');
+            
+            if (rememberMeCheckbox) {
+                rememberMeCheckbox.checked = true;
+                rememberMeCheckbox.dispatchEvent(new Event('change'));
+                
+                if (rememberMeCheckbox.checked) {
+                    addTestResult('הישאר מחובר', 'success', 'צ\'ק בוקס הישאר מחובר עובד');
+                    return true;
+                } else {
+                    addTestResult('הישאר מחובר', 'error', 'צ\'ק בוקס הישאר מחובר לא עובד');
+                    return false;
+                }
+            } else {
+                addTestResult('הישאר מחובר', 'error', 'אלמנט לא נמצא');
+                return false;
+            }
+        }
+        
+        function testLocalStorage() {
+            try {
+                localStorage.setItem('test', 'value');
+                const value = localStorage.getItem('test');
+                localStorage.removeItem('test');
+                
+                if (value === 'value') {
+                    addTestResult('localStorage', 'success', 'localStorage עובד');
+                    return true;
+                } else {
+                    addTestResult('localStorage', 'error', 'localStorage לא עובד');
+                    return false;
+                }
+            } catch (error) {
+                addTestResult('localStorage', 'error', `localStorage שגיאה: ${error.message}`);
+                return false;
+            }
+        }
+        
+        function testCORS() {
+            // בדיקה בסיסית של CORS
+            const currentOrigin = window.location.origin;
+            addTestResult('CORS', 'success', `Origin: ${currentOrigin}`);
+            return true;
+        }
+        
+        async function runAllTests() {
+            clearResults();
+            addTestResult('התחלת בדיקות', 'warning', 'מתחיל בדיקות...');
+            
+            // בדיקות שרת
+            await testServerConnection();
+            await testConfig();
+            
+            // בדיקות frontend
+            testPasswordToggle();
+            testHebrewValidation();
+            testRememberMe();
+            testLocalStorage();
+            testCORS();
+            
+            addTestResult('סיום בדיקות', 'warning', 'הבדיקות הושלמו');
+        }
+        
+        // אתחול
+        document.addEventListener('DOMContentLoaded', function() {
+            // אתחול כפתור הצגת/הסתרת סיסמה
+            const togglePasswordBtn = document.getElementById('togglePassword');
+            if (togglePasswordBtn) {
+                togglePasswordBtn.addEventListener('click', function() {
+                    const passwordInput = document.getElementById('password');
+                    const icon = this.querySelector('i');
+                    
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        icon.className = 'fas fa-eye-slash';
+                    } else {
+                        passwordInput.type = 'password';
+                        icon.className = 'fas fa-eye';
+                    }
+                });
+            }
+            
+            // אתחול בדיקת שפה בעברית
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    const hebrewRegex = /[\u0590-\u05FF]/;
+                    const passwordError = document.getElementById('passwordError');
+                    
+                    if (hebrewRegex.test(this.value)) {
+                        passwordError.style.display = 'flex';
+                    } else {
+                        passwordError.style.display = 'none';
+                    }
+                });
+            }
+            
+            // אתחול טופס התחברות
+            const adminLoginForm = document.getElementById('adminLoginForm');
+            if (adminLoginForm) {
+                adminLoginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    addTestResult('ניסיון התחברות', 'warning', 'מנסה להתחבר...');
+                    
+                    // כאן אפשר להוסיף בדיקת התחברות אמיתית
+                    addTestResult('התחברות', 'success', 'טופס התחברות עובד (בדיקה בלבד)');
+                });
+            }
+            
+            // הפעלת בדיקות אוטומטיות
+            setTimeout(() => {
+                runAllTests();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

@@ -5,6 +5,12 @@ let currentProduct = null;
 let currentImage = null;
 let editingProductId = null;
 
+// משתנים לניהול ניתוק אוטומטי
+let inactivityTimer = null;
+let sessionTimeout = 10 * 60 * 1000; // 10 דקות
+let isRememberMeChecked = false;
+let lastActivityTime = Date.now();
+
 // אתחול כל הפונקציונליות
 
 // פונקציה לבדיקת אימות ראשונית
@@ -23,6 +29,17 @@ async function checkInitialAuth() {
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             document.querySelector('.floating-logout').style.display = 'flex';
+            
+            // בדיקת "הישאר מחובר"
+            const savedRememberMe = localStorage.getItem('rememberMe');
+            isRememberMeChecked = savedRememberMe === 'true';
+            
+            // הגדרת טיימר ניתוק אוטומטי אם לא מסומן "הישאר מחובר"
+            if (!isRememberMeChecked) {
+                resetInactivityTimer();
+                setupActivityListeners();
+            }
+            
             // סדר טעינה: מוצרים -> קטגוריות
             await loadProducts();
             await loadCategories();
@@ -50,6 +67,76 @@ function saveAdminToken(token) {
     localStorage.setItem('adminTokenExpiry', (Date.now() + 24*60*60*1000).toString());
 }
 
+// פונקציות לניהול ניתוק אוטומטי
+function resetInactivityTimer() {
+    if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+    }
+    
+    if (!isRememberMeChecked) {
+        inactivityTimer = setTimeout(() => {
+            showAutoLogoutWarning();
+        }, sessionTimeout);
+    }
+    
+    lastActivityTime = Date.now();
+}
+
+function showAutoLogoutWarning() {
+    const warningMessage = 'הסשן יסתיים בעוד 30 שניות עקב חוסר פעילות. לחץ על "המשך" כדי להישאר מחובר.';
+    showMessage(warningMessage, 'warning');
+    
+    // ניתוק אוטומטי אחרי 30 שניות
+    setTimeout(() => {
+        if (!isRememberMeChecked) {
+            logout();
+        }
+    }, 30000);
+}
+
+function setupActivityListeners() {
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    events.forEach(event => {
+        document.addEventListener(event, resetInactivityTimer, true);
+    });
+}
+
+// פונקציה לבדיקת שפה בעברית
+function containsHebrewText(text) {
+    const hebrewRegex = /[\u0590-\u05FF]/;
+    return hebrewRegex.test(text);
+}
+
+// פונקציה להצגת/הסתרת סיסמה
+function togglePasswordVisibility() {
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('togglePassword');
+    const icon = toggleBtn.querySelector('i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        passwordInput.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+// פונקציה לבדיקת סיסמה בעברית
+function validatePasswordLanguage() {
+    const passwordInput = document.getElementById('password');
+    const passwordError = document.getElementById('passwordError');
+    
+    if (containsHebrewText(passwordInput.value)) {
+        passwordError.style.display = 'flex';
+        return false;
+    } else {
+        passwordError.style.display = 'none';
+        return true;
+    }
+}
+
 // בדיקת חיבור לשרת
 async function checkServerConnection() {
     try {
@@ -72,8 +159,19 @@ async function checkServerConnection() {
 async function login() {
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
+    const rememberMe = document.getElementById('rememberMe').checked;
+    
+    // הסתרת הודעות שגיאה קודמות
+    document.getElementById('loginError').style.display = 'none';
+    document.getElementById('passwordError').style.display = 'none';
+    
     if (!username || !password) {
-        showMessage('יש למלא את כל השדות', 'error');
+        showLoginError('יש למלא את כל השדות');
+        return;
+    }
+    
+    // בדיקת שפה בעברית
+    if (!validatePasswordLanguage()) {
         return;
     }
     try {
@@ -94,10 +192,33 @@ async function login() {
             } else {
             throw new Error(data.message || 'שגיאת התחברות');
         }
-            return;
-        }
+        return;
+    } catch (error) {
+        console.error('שגיאת התחברות:', error);
+        showLoginError(error.message || 'שגיאת התחברות');
+        return;
+    }
+}
+
+// פונקציה להצגת שגיאות התחברות
+function showLoginError(message) {
+    const loginError = document.getElementById('loginError');
+    const errorSpan = loginError.querySelector('span');
+    errorSpan.textContent = message;
+    loginError.style.display = 'flex';
+}
         if (data.token) {
             saveAdminToken(data.token);
+            
+            // שמירת העדפת "הישאר מחובר"
+            isRememberMeChecked = rememberMe;
+            localStorage.setItem('rememberMe', rememberMe.toString());
+            
+            // הגדרת טיימר ניתוק אוטומטי
+            if (!rememberMe) {
+                resetInactivityTimer();
+                setupActivityListeners();
+            }
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
             document.querySelector('.floating-logout').style.display = 'flex';
@@ -116,7 +237,27 @@ async function login() {
 
 // פונקציית התנתקות
 function logout() {
+    // ניקוי טיימרים
+    if (inactivityTimer) {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = null;
+    }
+    
+    // ניקוי מאזיני אירועים
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    events.forEach(event => {
+        document.removeEventListener(event, resetInactivityTimer, true);
+    });
+    
+    // ניקוי localStorage
     localStorage.removeItem('adminToken');
+    localStorage.removeItem('adminTokenExpiry');
+    localStorage.removeItem('rememberMe');
+    
+    // איפוס משתנים
+    isRememberMeChecked = false;
+    lastActivityTime = Date.now();
+    
     document.getElementById('loginForm').style.display = 'block';
     document.getElementById('adminPanel').style.display = 'none';
     document.querySelector('.floating-logout').style.display = 'none';
@@ -613,19 +754,39 @@ function confirmDelete(id) {
 
 // פונקציית הודעות
 function showMessage(message, type) {
-    // הסר הודעות קודמות
-    const existingMessages = document.querySelectorAll('.message');
+    // הסר הודעות קודמות (למעט אזהרות ניתוק אוטומטי)
+    const existingMessages = document.querySelectorAll('.message:not(.warning)');
     existingMessages.forEach(msg => msg.remove());
 
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}`;
-    messageDiv.textContent = message;
+    
+    // הוספת אייקון להודעות
+    let icon = '';
+    switch(type) {
+        case 'error':
+            icon = '<i class="fas fa-exclamation-triangle"></i>';
+            break;
+        case 'success':
+            icon = '<i class="fas fa-check-circle"></i>';
+            break;
+        case 'warning':
+            icon = '<i class="fas fa-exclamation-triangle"></i>';
+            break;
+        default:
+            icon = '<i class="fas fa-info-circle"></i>';
+    }
+    
+    messageDiv.innerHTML = `${icon} <span>${message}</span>`;
     document.body.appendChild(messageDiv);
 
-    // הסר את ההודעה אחרי 3 שניות
+    // הסר את ההודעה אחרי זמן מתאים
+    const timeout = type === 'warning' ? 30000 : 3000; // 30 שניות לאזהרות, 3 שניות לשאר
     setTimeout(() => {
-        messageDiv.remove();
-    }, 3000);
+        if (messageDiv.parentNode) {
+            messageDiv.remove();
+        }
+    }, timeout);
 }
 
 // טעינת קטגוריות מהשרת ועדכון הרשימות
@@ -1044,4 +1205,61 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         setupProductTableFilters();
     }
+    
+    // אתחול פונקציונליות חדשה
+    initializeNewFeatures();
 });
+
+// פונקציה לאתחול הפונקציונליות החדשות
+function initializeNewFeatures() {
+    // אתחול כפתור הצגת/הסתרת סיסמה
+    const togglePasswordBtn = document.getElementById('togglePassword');
+    if (togglePasswordBtn) {
+        togglePasswordBtn.addEventListener('click', togglePasswordVisibility);
+    }
+    
+    // אתחול בדיקת שפה בעברית בשדה סיסמה
+    const passwordInput = document.getElementById('password');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', validatePasswordLanguage);
+    }
+    
+    // אתחול צ'ק בוקס "הישאר מחובר"
+    const rememberMeCheckbox = document.getElementById('rememberMe');
+    if (rememberMeCheckbox) {
+        // טעינת העדפה קודמת
+        const savedRememberMe = localStorage.getItem('rememberMe');
+        if (savedRememberMe === 'true') {
+            rememberMeCheckbox.checked = true;
+            isRememberMeChecked = true;
+        }
+        
+        rememberMeCheckbox.addEventListener('change', function() {
+            isRememberMeChecked = this.checked;
+            localStorage.setItem('rememberMe', this.checked.toString());
+            
+            if (this.checked) {
+                // ביטול טיימר ניתוק אוטומטי
+                if (inactivityTimer) {
+                    clearTimeout(inactivityTimer);
+                    inactivityTimer = null;
+                }
+            } else {
+                // הפעלת טיימר ניתוק אוטומטי
+                resetInactivityTimer();
+            }
+        });
+    }
+    
+    // אתחול טופס התחברות
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    if (adminLoginForm) {
+        adminLoginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            await login();
+        });
+    }
+    
+    // בדיקת אימות ראשונית
+    checkInitialAuth();
+}
