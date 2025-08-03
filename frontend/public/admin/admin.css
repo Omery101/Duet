@@ -194,6 +194,7 @@ body {
     padding: 2px;
     font-size: 0.8rem;
     transition: color 0.3s ease;
+    margin-right: 80%;
 }
 
 .password-toggle:hover {
