@@ -288,6 +288,16 @@ function logout() {
     document.getElementById('password').value = '';
     showMessage('התנתקת בהצלחה', 'success');
 }
+// מאזין התנתקות
+document.addEventListener('DOMContentLoaded', () => {
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      logout(); // תנתק מיד, בלי לבדוק שום תנאי
+      showMessage('התנתקת בהצלחה', 'success');
+    });
+  }
+});
 
 // מבנה קטגוריות
 // let categories = []; // הסרת הגדרה כפולה
