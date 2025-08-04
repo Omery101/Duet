@@ -75,6 +75,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'frontend', 'public', 'uploads')));
+app.use('/src', express.static(path.join(__dirname, '..', 'frontend', 'src')));
 
 // וידוא שתיקיית uploads קיימת
 const uploadsDir = path.join(__dirname, '..', 'frontend', 'public', 'uploads');

@@ -13,7 +13,12 @@ node_modules/
 frontend/dist/
 
 # Uploaded files
-frontend/public/uploads/
+frontend/public/uploads/*
+
+#Exclusion logo folder
+!frontend/public/uploads/logo/
+#Exclusion logo file
+!frontend/public/uploads/logo/Logo-Duet.jpg
 
 # Logs
 logs/
