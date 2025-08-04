@@ -31,6 +31,14 @@ if (missingEnvVars.length > 0) {
 
 const app = express();
 
+// CORS settings for cross-origin requests 
+app.use(cors({
+    origin: config.NODE_ENV === 'production' 
+        ? ['https://duet-frontend.onrender.com'] 
+        : 'http://localhost:3000',
+    credentials: true
+})); 
+
 // MongoDB connection
 const MONGODB_URI = config.MONGODB_URI;
 
@@ -64,13 +72,7 @@ mongoose.connection.on('reconnected', () => {
     console.log('✅ התחברות מחדש ל-MongoDB');
 });
 
-// Middleware
-app.use(cors({
-    origin: config.NODE_ENV === 'production' 
-        ? ['https://duet-frontend.onrender.com', 'https://yourdomain.com'] 
-        : 'http://localhost:3000',
-    credentials: true
-}));  
+// Middleware 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'public')));

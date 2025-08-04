@@ -528,15 +528,17 @@ function showAddProductForm() {
 // פונקציה לשליחת בקשות מאומתות
 async function fetchWithAuth(url, options = {}) {
     showLoading(true);
+
     try {
         const response = await fetch(url, {
             ...options,
+            credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
                 ...options.headers
             }
         });
-    
+
         if (response.status === 401) {
             localStorage.removeItem('adminToken');
             showMessage('הסשן פג תוקף, יש להתחבר מחדש', 'error');
@@ -556,6 +558,7 @@ async function fetchWithAuth(url, options = {}) {
         showLoading(false);
     }
 }
+
 
 // טעינת מוצרים
 async function loadProducts() {
