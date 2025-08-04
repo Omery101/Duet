@@ -643,12 +643,12 @@ function editProduct(productId) {
     editingProductId = productId;
     displayProducts(window.allProducts || []);
 }
-
+// פונקציה ביטול עריכת מוצר
 function cancelProductEdit() {
     editingProductId = null;
     displayProducts(window.allProducts || []);
 }
-
+// פונצקיה שמירת עריכת מוצר
 async function saveProductEdit(productId) {
     const name = document.getElementById('editName').value.trim();
     const desc = document.getElementById('editDesc').value.trim();
@@ -1231,6 +1231,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // יצירת מזהה ייחודי במונגו למוצר שהתווסף
+    // function generateCustomId(categoryName, productName, sku, version = '') {
+    // const categoryLetter = categoryName.trim()[0].toUpperCase();
+    // const cleanProductName = productName.trim().replace(/\s+/g, '-').toLowerCase();
+    // const versionSuffix = version ? `-${version.toUpperCase()}` : '';
+    // return `${categoryLetter}-${cleanProductName}-${sku}${versionSuffix}`;
+    // }
+
 
     // קריאה ב-DOM Ready
     if (document.readyState === 'loading') {

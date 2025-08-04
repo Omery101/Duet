@@ -45,4 +45,12 @@ const auth = {
     }
 };
 
+async function fetchWithAuth(url, options = {}) {
+  const token = localStorage.getItem('adminToken');
+  if (!options.headers) options.headers = {};
+  options.headers['Authorization'] = `Bearer ${token}`;
+  return fetch(url, options);
+}
+
+export { fetchWithAuth };
 export default auth; 
