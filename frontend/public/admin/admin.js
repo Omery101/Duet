@@ -210,7 +210,6 @@ async function login() {
         showLoginError('התחברות הצליחה', data, rememberMe);
         // שמירת הטוקן
         localStorage.setItem('adminToken', data.token);
-
     } catch (error) {
         console.error('שגיאת התחברות:', error);
         showLoginError(error.message || 'שגיאת התחברות');
@@ -355,17 +354,48 @@ async function addCategory() {
         const method = editId ? 'PUT' : 'POST';
         
         console.log('Sending request to:', url, 'with method:', method);
-        const response = await fetchWithAuth(url, {
-            method,
+async function fetchWithAuth(url, options = {}) {
+    showLoading(true);
+
+    try {
+        const headers = {
+            ...options.headers,
+        };
+
+        if (!(options.body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            credentials: 'include',
             headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: categoryName,
-                code: categoryCode
-            })
+                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                ...headers
+            }
         });
 
+        if (response.status === 401) {
+            localStorage.removeItem('adminToken');
+            showMessage('הסשן פג תוקף, יש להתחבר מחדש', 'error');
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+            throw new Error('הסשן פג תוקף');
+        }
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'שגיאה בבקשה');
+        }
+
+        return response;
+    } finally {
+        showLoading(false);
+    }
+}
+
+        
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.message || 'שגיאה בשמירת הקטגוריה');
