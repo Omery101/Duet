@@ -1,8 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 const Product = require('../models/Product');
 const jwt = require('jsonwebtoken');
 
@@ -29,22 +26,9 @@ const authenticateAdmin = (req, res, next) => {
     }
 };
 
-// Multer configuration for file uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        // שמירת תמונות מוצרים בתיקיית products
-        const productsDir = path.join(__dirname, '..', '..', 'frontend', 'public', 'uploads', 'products');
-        if (!fs.existsSync(productsDir)) {
-            fs.mkdirSync(productsDir, { recursive: true });
-        }
-        cb(null, productsDir);
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
-
-const upload = multer({ storage: storage });
+const { storage } = require('../config/cloudinary');
+const multer = require('multer');
+const upload = multer({ storage });
 
 // קבלת כל המוצרים
 router.get('/', async (req, res) => {

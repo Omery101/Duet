@@ -3,9 +3,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const multer = require('multer');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const multer = require('multer');
 const mongoose = require('mongoose');
 const productsRouter = require('./routes/products');
 const ordersRouter = require('./routes/orders');
@@ -98,9 +98,9 @@ if (!fs.existsSync(logoDir)) {
 }
 
 // Multer configuration for file uploads
-const multer = require('multer');
-const { storage } = require('./config/cloudinary');
-const upload = multer({ storage });
+// const { storage } = require('./config/cloudinary');
+// const upload = multer({ storage });
+
 
 // const upload = multer({ storage });
 // const cpUpload = upload.fields([
