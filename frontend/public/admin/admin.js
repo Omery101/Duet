@@ -568,6 +568,7 @@ async function fetchWithAuth(url, options = {}) {
             credentials: 'include',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                 ...(options.body instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
                 ...options.headers
             }
         });
