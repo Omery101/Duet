@@ -354,7 +354,8 @@ async function addCategory() {
         const method = editId ? 'PUT' : 'POST';
         
         console.log('Sending request to:', url, 'with method:', method);
-async function fetchWithAuth(url, options = {}) {
+
+       async function fetchWithAuth(url, options = {}) {
     showLoading(true);
 
     try {
@@ -366,13 +367,15 @@ async function fetchWithAuth(url, options = {}) {
             headers['Content-Type'] = 'application/json';
         }
 
+        const token = localStorage.getItem('adminToken');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
         const response = await fetch(url, {
             ...options,
             credentials: 'include',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
-                ...headers
-            }
+            headers
         });
 
         if (response.status === 401) {
@@ -394,6 +397,7 @@ async function fetchWithAuth(url, options = {}) {
         showLoading(false);
     }
 }
+
 
         
         if (!response.ok) {
