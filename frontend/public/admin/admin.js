@@ -208,6 +208,8 @@ async function login() {
 
         // אם הצליח
         showLoginError('התחברות הצליחה', data, rememberMe);
+        // שמירת הטוקן
+        localStorage.setItem('adminToken', data.token);
 
     } catch (error) {
         console.error('שגיאת התחברות:', error);
@@ -530,6 +532,7 @@ async function fetchWithAuth(url, options = {}) {
     showLoading(true);
 
     try {
+        console.log('Token:', localStorage.getItem('adminToken'));
         const response = await fetch(url, {
             ...options,
             credentials: 'include',

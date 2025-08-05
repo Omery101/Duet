@@ -98,17 +98,23 @@ if (!fs.existsSync(logoDir)) {
 }
 
 // Multer configuration for file uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        // שמירת תמונות מוצרים בתיקיית products
-        cb(null, productsDir);
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + '-' + file.originalname);
-    }
-});
+const multer = require('multer');
+const { storage } = require('./config/cloudinary');
+const upload = multer({ storage });
 
-const upload = multer({ storage: storage });
+// const upload = multer({ storage });
+// const cpUpload = upload.fields([
+//   { name: 'image', maxCount: 1 },              // תמונה ראשית של המוצר
+//   { name: 'variantImages', maxCount: 10 }      // תמונות של גרסאות/וריאציות
+// ]);
+
+// app.post('/api/products', cpUpload, (req, res) => {
+//   const mainImage = req.files['image']?.[0];
+//   const variantImages = req.files['variantImages'] || [];
+
+//   // ... המשך טיפול
+// });
+
 
 // נקודת קצה להתחברות מנהל
 app.post('/api/admin/login', (req, res) => {
