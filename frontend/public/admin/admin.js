@@ -618,55 +618,137 @@ async function loadProducts() {
 
 // הצגת מוצרים בטבלה
 function displayProducts(products) {
-    const tbody = document.querySelector('#productsTable tbody');
-    if (!tbody) return;
-        if (!products || products.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" class="no-data">לא נמצאו מוצרים</td></tr>';
-            return;
-        }
-    tbody.innerHTML = products.map(product => {
-        // קביעת נתיב תמונה נכון
-        let imagePath = '';
-        if (product.image) {
-            imagePath = product.image.startsWith('/uploads/products/') ? product.image : '/uploads/products/' + product.image.replace(/^\/uploads\//, '');
-        }
-        if (editingProductId === product._id) {
-            // מצב עריכה
-            return `
-            <tr class="editing-row">
-                <td><input type="text" value="${product.name || ''}" id="editName"></td>
-                <td><input type="text" value="${product.description || product.desc || ''}" id="editDesc"></td>
-                <td><select id="editCategory">${(categories||[]).map(cat => `<option value="${cat.code}" ${cat.code===product.category?'selected':''}>${cat.name}</option>`).join('')}</select></td>
-                <td><input type="text" value="${product.sku || ''}" id="editSku"></td>
-                <td>
-                    ${product.image ? `<img src="${imagePath}" alt="${product.name}" style="width:50px;height:50px;object-fit:cover;display:block;margin-bottom:4px;">` : 'אין תמונה'}
-                    <input type="file" id="editImage" accept="image/*">
-                </td>
-                <td><input type="checkbox" id="editOnSale" ${product.onSale ? 'checked' : ''}></td>
-                <td>
-                    <button class="save-btn" onclick="saveProductEdit('${product._id}')">שמור</button>
-                    <button class="cancel-btn" onclick="cancelProductEdit()">ביטול</button>
-                </td>
-            </tr>
-            `;
-            } else {
-            return `
-            <tr>
-                <td>${product.name || ''}</td>
-                <td>${product.description || product.desc || ''}</td>
-                <td>${getCategoryName(product.category) || ''}</td>
-                <td>${product.sku || ''}</td>
-                <td>${product.image ? `<img src="${imagePath}" alt="${product.name}" style="width:50px;height:50px;object-fit:cover;">` : 'אין תמונה'}</td>
-                <td>${product.onSale ? 'כן' : 'לא'}</td>
-                <td>
-                    <button class="edit-btn" onclick="editProduct('${product._id}')">ערוך</button>
-                    <button class="delete-btn" onclick="confirmDelete('${product._id}')">מחק</button>
-                </td>
-            </tr>
+    const productsList = document.getElementById('productsList');
+    if (!productsList) return;
+
+    if (!products || products.length === 0) {
+        productsList.innerHTML = '<p class="no-products">לא נמצאו מוצרים</p>';
+        return;
+    }
+
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
+    // פונקציה לעיבוד נתיב תמונה
+    const getImagePath = (path) => {
+        if (!path) return '';
+        return /^https?:\/\//.test(path) ? path : '/uploads/products/' + path.replace(/^\/uploads\//, '');
+    };
+
+    productsList.innerHTML = products.map(product => {
+        let imageGallery = '';
+        let imagePath = getImagePath(product.image);
+
+        // --- תמיכה בגלריה עבור מערך תמונות רגיל ---
+        if (Array.isArray(product.images) && product.images.length > 1) {
+            const images = product.images.map((img, idx) => {
+                const imgPath = getImagePath(img);
+                return `
+                    <div class="product-image-thumb${idx === 0 ? ' active' : ''}" data-img-idx="${idx}">
+                        <img src="${imgPath}" alt="${product.name} ${idx + 1}" class="product-image">
+                    </div>
+                `;
+            }).join('');
+            const firstImgPath = getImagePath(product.images[0]);
+            imageGallery = `
+                <div class="product-gallery">
+                    <div class="gallery-main">
+                        <img src="${firstImgPath}" alt="${product.name}" class="product-image">
+                    </div>
+                    <div class="gallery-thumbnails">
+                        ${images}
+                    </div>
+                </div>
             `;
         }
+
+        // --- תמיכה בגלריה של productTypes ---
+        else if (product.hasMultipleTypes && product.productTypes && product.productTypes.length > 0) {
+            const defaultType = product.productTypes.find(type => type.isDefault) || product.productTypes[0];
+            const images = product.productTypes.map(type => {
+                const typeImagePath = getImagePath(type.image);
+                return `
+                    <div class="product-type-image ${type.isDefault ? 'active' : ''}" data-type-id="${type._id}">
+                        <img src="${typeImagePath}" alt="${type.name}" class="product-image">
+                        <span class="type-name">${type.name}</span>
+                    </div>
+                `;
+            }).join('');
+            const defaultTypeImagePath = getImagePath(defaultType.image);
+            imageGallery = `
+                <div class="product-gallery">
+                    <div class="gallery-main">
+                        <img src="${defaultTypeImagePath}" alt="${product.name}" class="product-image">
+                    </div>
+                    <div class="gallery-thumbnails">
+                        ${images}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- תמונה רגילה אחת בלבד ---
+        else {
+            imageGallery = imagePath
+                ? `<img src="${imagePath}" alt="${product.name}" class="product-image">`
+                : '<div class="no-image">אין תמונה</div>';
+        }
+
+        return `
+            <div class="product-card" data-sku="${product.sku}" data-category="${product.category}" data-sale="${product.onSale || false}" data-product='${JSON.stringify(product).replace(/'/g, "&#39;")}'>
+                ${product.onSale ? '<span class="sale-badge">מבצע!</span>' : ''}
+                <button class="favorite-button ${favorites.includes(product.sku) ? 'active' : ''}" onclick="toggleFavorite('${product.sku}')">
+                    <i class="fas fa-star"></i>
+                </button>
+                ${imageGallery}
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-description">${product.desc || product.description}</p>
+                    <span class="product-category">${getCategoryDisplayName(product.category)}</span>
+                    <p class="product-sku">מק"ט: ${product.sku}</p>
+                    <div class="cart-buttons-group">
+                        <button class="order-button" onclick="addToCart('${product.sku}')">הוסף לעגלה</button>
+                        <button class="remove-cart-button" onclick="removeFromCartBySku('${product.sku}')">הסר מהעגלה</button>
+                    </div>
+                </div>
+            </div>
+        `;
     }).join('');
+
+    // --- האזנה לגלריה ---
+    document.querySelectorAll('.product-gallery').forEach(gallery => {
+        const mainImage = gallery.querySelector('.gallery-main img');
+
+        // עבור productTypes
+        gallery.querySelectorAll('.gallery-thumbnails .product-type-image').forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                gallery.querySelectorAll('.product-type-image').forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+                mainImage.src = thumb.querySelector('img').src;
+                mainImage.alt = thumb.querySelector('.type-name').textContent;
+            });
+        });
+
+        // עבור images רגילים
+        gallery.querySelectorAll('.gallery-thumbnails .product-image-thumb').forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                gallery.querySelectorAll('.product-image-thumb').forEach(t => t.classList.remove('active'));
+                thumb.classList.add('active');
+                mainImage.src = thumb.querySelector('img').src;
+                mainImage.alt = thumb.querySelector('img').alt;
+            });
+        });
+    });
+
+    // --- פופאפ מוצר ---
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function (e) {
+            if (e.target.closest('button') || e.target.closest('.favorite-button')) return;
+            const product = JSON.parse(this.getAttribute('data-product').replace(/&#39;/g, "'"));
+            openProductModal(product);
+        });
+    });
 }
+
 
 // פונקציות חיפוש ודפדוף (placeholder)
 function setupAdvancedSearch() {

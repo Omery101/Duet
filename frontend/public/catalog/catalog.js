@@ -347,7 +347,7 @@ function displayProducts(products) {
         let imageGallery = '';
         // קביעת נתיב תמונה נכון
       let imagePath = '';
-if (product.image) {
+   if (product.image) {
     // Full Cloudinary URL
     if (product.image.startsWith('http')) {
         imagePath = product.image;

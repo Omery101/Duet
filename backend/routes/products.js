@@ -2,6 +2,23 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 const jwt = require('jsonwebtoken');
+const { cloudinary } = require('../config/cloudinary');
+const product = await Product.findByIdAndDelete(req.params.id);
+
+// הוצאת URL מה-public ID
+function extractPublicId(imageUrl) {
+    try {
+        const parts = imageUrl.split('/');
+        const fileName = parts[parts.length - 1]; // dbzzw1d50skljbjztdpo.webp
+        const folder = parts[parts.length - 2];   // duet-products
+        const publicId = `${folder}/${fileName.split('.')[0]}`;
+        return publicId;
+    } catch (err) {
+        console.error('⚠️ extractPublicId Error:', err);
+        return null;
+    }
+}
+
 
 // Middleware לאימות מנהל
 const authenticateAdmin = (req, res, next) => {
@@ -56,9 +73,10 @@ router.get('/:id', async (req, res) => {
 // הוספת מוצר חדש
 router.post('/', authenticateAdmin, upload.single('image'), async (req, res) => {
     try {
+        console.log('Cloudinary URL:', req.file?.path);
         const productData = {
             ...req.body,
-            image: req.file ? req.file.path : null
+            image: req.file ? req.file.path : null 
         };
 
         // אם יש סוגי מוצרים
@@ -136,10 +154,28 @@ router.delete('/:id', authenticateAdmin, async (req, res) => {
         if (!product) {
             return res.status(404).json({ message: 'המוצר לא נמצא' });
         }
+
+        // מחיקת תמונה מהקלאודינרי אם קיימת
+        if (product.image && product.image.startsWith('http')) {
+            try {
+                const publicId = extractPublicId(product.image);
+                if (publicId) {
+                    await cloudinary.uploader.destroy(publicId);
+                    console.log('✔️ התמונה נמחקה מ־Cloudinary:', publicId);
+                }
+            } catch (error) {
+                console.error('⚠️ שגיאה במחיקת תמונה מ־Cloudinary:', error);
+            }
+        }
+
         res.json({ message: 'המוצר נמחק בהצלחה' });
+
     } catch (err) {
         res.status(500).json({ message: 'שגיאה במחיקת המוצר', error: err.message });
     }
 });
+
+
+
 
 module.exports = router; 

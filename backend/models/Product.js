@@ -6,10 +6,11 @@ const productTypeSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    image: {
-        type: String,
-        required: true
-    },
+images: {
+    type: [String], // מערך של כתובות URL
+    required: true, // אם תמיד חייב לפחות אחת
+    validate: v => Array.isArray(v) && v.length > 0 // לוודא שלא ריק
+},
     isDefault: {
         type: Boolean,
         default: false
