@@ -346,10 +346,17 @@ function displayProducts(products) {
     productsList.innerHTML = products.map(product => {
         let imageGallery = '';
         // קביעת נתיב תמונה נכון
-        let imagePath = '';
-        if (product.image) {
-            imagePath = product.image.startsWith('/uploads/products/') ? product.image : '/uploads/products/' + product.image.replace(/^\/uploads\//, '');
-        }
+      let imagePath = '';
+if (product.image) {
+    // Full Cloudinary URL
+    if (product.image.startsWith('http')) {
+        imagePath = product.image;
+    } else {
+        // Local Pictures
+        imagePath = '/uploads/products/' + product.image.replace(/^\/uploads\//, '');
+    }
+}
+
         // --- תמיכה בגלריה עבור מערך תמונות ---
         if (Array.isArray(product.images) && product.images.length > 1) {
             // גלריה עבור מערך תמונות רגיל
