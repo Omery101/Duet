@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
 const jwt = require('jsonwebtoken');
-const { cloudinary } = require('../config/cloudinary');
-
+const { cloudinary, storage } = require('../config/cloudinary');
 
 // הוצאת URL מה-public ID
 function extractPublicId(imageUrl) {
@@ -43,7 +42,6 @@ const authenticateAdmin = (req, res, next) => {
     }
 };
 
-const { storage } = require('../config/cloudinary');
 const multer = require('multer');
 const upload = multer({ storage });
 
