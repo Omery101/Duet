@@ -1248,7 +1248,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (imageFile) formData.append('image', imageFile);
             if (hasMultipleTypes) {
                 // ניקוי תמונות base64, רק שמות ותמונות יועברו
-                const typesToSend = productTypes.map(t => ({ name: t.name, isDefault: t.isDefault, image: t.image }));
+                const typesToSend = productTypes.map(t => ({ name: t.name, isDefault: t.isDefault, image: "" }));
                 formData.append('productTypes', JSON.stringify(typesToSend));
                 // TODO: שליחת קבצי תמונה אמיתיים לסוגים (אם נדרש)
             }

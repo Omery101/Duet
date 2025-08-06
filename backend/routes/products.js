@@ -58,14 +58,14 @@ router.post('/', authenticateAdmin, upload.single('image'), async (req, res) => 
     try {
         const productData = {
             ...req.body,
-            image: req.file ? `/uploads/products/${req.file.filename}` : null
+            image: req.file ? req.file.path : null
         };
 
-        // טיפול בסוגי מוצרים מרובים
+        // אם יש סוגי מוצרים
         if (req.body.hasMultipleTypes === 'true' && req.body.productTypes) {
             try {
                 productData.productTypes = JSON.parse(req.body.productTypes);
-                // וידוא שיש תמונה ברירת מחדל
+
                 if (productData.productTypes.length > 0) {
                     const hasDefault = productData.productTypes.some(type => type.isDefault);
                     if (!hasDefault) {
@@ -80,10 +80,13 @@ router.post('/', authenticateAdmin, upload.single('image'), async (req, res) => 
         const product = new Product(productData);
         await product.save();
         res.status(201).json(product);
+
     } catch (err) {
-        res.status(400).json({ message: 'שגיאה ביצירת המוצר', error: err.message });
+        console.error('❌ שגיאה ביצירת המוצר:', err);  // 👈 שורת מפתח
+        res.status(500).json({ message: 'שגיאת שרת', error: 'שגיאה פנימית' });
     }
 });
+
 
 // עדכון מוצר
 router.put('/:id', authenticateAdmin, upload.single('image'), async (req, res) => {
