@@ -629,10 +629,13 @@ function displayProducts(products) {
     const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
     // פונקציה לעיבוד נתיב תמונה
-    const getImagePath = (path) => {
-        if (!path) return '';
-        return /^https?:\/\//.test(path) ? path : '/uploads/products/' + path.replace(/^\/uploads\//, '');
-    };
+   const getImagePath = (path) => {
+  if (!path) return '';
+  if (path.startsWith('http') || path.startsWith('//') || path.includes('res.cloudinary.com')) {
+    return path;
+  }
+  return '/uploads/products/' + path.replace(/^\/uploads\//, '');
+};
 
     productsList.innerHTML = products.map(product => {
         let imageGallery = '';
