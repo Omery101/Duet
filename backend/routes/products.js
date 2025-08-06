@@ -3,7 +3,7 @@ const router = express.Router();
 const Product = require('../models/Product');
 const jwt = require('jsonwebtoken');
 const { cloudinary } = require('../config/cloudinary');
-const product = await Product.findByIdAndDelete(req.params.id);
+
 
 // הוצאת URL מה-public ID
 function extractPublicId(imageUrl) {
@@ -174,8 +174,6 @@ router.delete('/:id', authenticateAdmin, async (req, res) => {
         res.status(500).json({ message: 'שגיאה במחיקת המוצר', error: err.message });
     }
 });
-
-
 
 
 module.exports = router; 
