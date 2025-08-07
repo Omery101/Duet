@@ -1,5 +1,9 @@
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const multer = require('multer');
+const path = require('path');
+
+let storage = null;
 
 if (process.env.NODE_ENV === 'production') {
   cloudinary.config({
@@ -8,20 +12,15 @@ if (process.env.NODE_ENV === 'production') {
     api_secret: process.env.CLOUDINARY_API_SECRET
   });
 
-  const storage = new CloudinaryStorage({
+  storage = new CloudinaryStorage({
     cloudinary,
     params: {
       folder: 'duet-products',
       allowed_formats: ['jpg', 'jpeg', 'png', 'webp']
     }
   });
-
-  module.exports = { cloudinary, storage };
 } else {
-  // אחסון מקומי לפיתוח בלבד
-  const multer = require('multer');
-  const path = require('path');
-  const storage = multer.diskStorage({
+  storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, path.join(__dirname, '../uploads/products'));
     },
@@ -29,6 +28,10 @@ if (process.env.NODE_ENV === 'production') {
       cb(null, Date.now() + '-' + file.originalname);
     }
   });
-
-  module.exports = { storage };
 }
+
+// ייצוא יחיד ואחיד
+module.exports = {
+  cloudinary: process.env.NODE_ENV === 'production' ? cloudinary : null,
+  storage
+};
