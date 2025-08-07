@@ -617,7 +617,6 @@ async function loadProducts() {
 }
 
 // הצגת מוצרים בטבלה
-// הצגת מוצרים בטבלה
 function displayProducts(products) {
     const tbody = document.querySelector('#productsTable tbody');
     if (!tbody) return;
