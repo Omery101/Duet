@@ -616,15 +616,6 @@ async function loadProducts() {
     }
 }
 
-fetch('/api/products')
-  .then(res => res.json())
-  .then(data => {
-    console.log('products:', data); // האם זה ריק?
-  })
-  .catch(err => {
-    console.error('שגיאה ב־fetch:', err);
-  });
-
 // הצגת מוצרים בטבלה
 function displayProducts(products) {
     const tbody = document.querySelector('#productsTable tbody');
