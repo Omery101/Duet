@@ -616,9 +616,18 @@ async function loadProducts() {
     }
 }
 
+fetch('/api/products')
+  .then(res => res.json())
+  .then(data => {
+    console.log('products:', data); // האם זה ריק?
+  })
+  .catch(err => {
+    console.error('שגיאה ב־fetch:', err);
+  });
+
 // הצגת מוצרים בטבלה
 function displayProducts(products) {
-    const tbody = document.querySelector('product-types-list');
+    const tbody = document.querySelector('#productsTable tbody');
     if (!tbody) return;
         if (!products || products.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="no-data">לא נמצאו מוצרים</td></tr>';
