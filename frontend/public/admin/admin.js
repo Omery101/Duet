@@ -597,6 +597,12 @@ async function fetchWithAuth(url, options = {}) {
     }
 }
 
+// טעינת ה- DOM 
+document.addEventListener('DOMContentLoaded', () => {
+  loadProducts();
+  setupProductTableFilters();
+});
+
 
 // טעינת מוצרים
 async function loadProducts() {
