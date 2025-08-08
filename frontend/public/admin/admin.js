@@ -618,24 +618,23 @@ async function loadProducts() {
 
 // הצגת מוצרים בטבלה
 function displayProducts(products) {
-    const tbody = document.querySelector('#productsTable tbody');
+    const tbody = document.querySelector('product-types-list');
     if (!tbody) return;
         if (!products || products.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="no-data">לא נמצאו מוצרים</td></tr>';
             return;
         }
     tbody.innerHTML = products.map(product => {
+        if (!product) {
+        console.warn('מוצר ריק או לא מוגדר:', product);
+        return '';
+    }
         // קביעת נתיב תמונה נכון
         let imagePath = '';
         if (product.image) {
             imagePath = product.image.startsWith('/uploads/products/') ? product.image : '/uploads/products/' + product.image.replace(/^\/uploads\//, '');
         }
         if (editingProductId === product._id) {
-            
-            console.log('editingProductId:', editingProductId);
-            console.log('product._id:', product._id);
-            console.log('product.image:', product.image);
-            console.log('imagePath:', imagePath);
 // מצב עריכה
             return `
             <tr class="editing-row">
