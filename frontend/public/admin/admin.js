@@ -631,7 +631,12 @@ function displayProducts(products) {
             imagePath = product.image.startsWith('/uploads/products/') ? product.image : '/uploads/products/' + product.image.replace(/^\/uploads\//, '');
         }
         if (editingProductId === product._id) {
-            // מצב עריכה
+            
+            console.log('editingProductId:', editingProductId);
+            console.log('product._id:', product._id);
+            console.log('product.image:', product.image);
+            console.log('imagePath:', imagePath);
+// מצב עריכה
             return `
             <tr class="editing-row">
                 <td><input type="text" value="${product.name || ''}" id="editName"></td>
