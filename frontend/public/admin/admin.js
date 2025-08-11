@@ -308,25 +308,6 @@ function saveCategories() {
     localStorage.setItem('categories', JSON.stringify(categories));
 }
 
-// הוספת קטגוריה חדשה
-const url = editId ? `/api/categories/${editId}` : '/api/categories';
-const method = editId ? 'PUT' : 'POST';
-
-const body = JSON.stringify({
-    name: categoryName,
-    code: categoryCode
-});
-
-const response = await fetchWithAuth(url, {
-    method,
-    body
-});
-
-if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'שגיאה בשמירת הקטגוריה');
-}
-
 // הוספת או עדכון קטגוריה
 async function addCategory() {
     console.log('Adding category...');
