@@ -260,7 +260,7 @@ async function showLoginError(message, data = {}, rememberMe = false) {
 
 
 // פונקציית התנתקות
-function logout() {
+   function logout() {
     // ניקוי טיימרים
     if (inactivityTimer) {
         clearTimeout(inactivityTimer);
@@ -289,8 +289,8 @@ function logout() {
     document.getElementById('password').value = '';
     showMessage('התנתקת בהצלחה', 'success');
 }
-// מאזין התנתקות
-document.addEventListener('DOMContentLoaded', () => {
+  // מאזין התנתקות
+     document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logoutBtn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
@@ -298,9 +298,10 @@ document.addEventListener('DOMContentLoaded', () => {
       showMessage('התנתקת בהצלחה', 'success');
     });
   }
-});
+    });
 
-// מבנה קטגוריות
+
+    // מבנה קטגוריות
 // let categories = []; // הסרת הגדרה כפולה
 
 // שמירת קטגוריות
@@ -1314,3 +1315,208 @@ function initializeNewFeatures() {
     // בדיקת אימות ראשונית
     checkInitialAuth();
 }
+
+
+// אתחול כל הפונקציונליות
+document.addEventListener('DOMContentLoaded', function() {
+    // Navigation elements
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+    const mainNav = document.getElementById('mainNav');
+
+    // Music player elements
+    const musicToggle = document.getElementById('musicToggle');
+    const backgroundMusic = document.getElementById('backgroundMusic');
+    const musicIcon = musicToggle?.querySelector('i');
+
+    // State variables
+    let isMusicPlaying = false;
+    let currentTrackIndex = 0;
+    const tracks = [
+        '/music/חנן בן ארי - בשורות טובות.mp3',
+        '/music/בלדה לגמל.mp3',
+        '/music/גלי עטרי - דרך ארוכה.mp3',
+        '/music/כמעט כבר נוגע - יהודה פוליקר.mp3',
+        '/music/אפרים ואסתר שמיר - ערב של יום בהיר.mp3',
+        '/music/אריק סיני - דרך הכורכר.mp3'
+    ];
+
+    // Music Player Functions
+    function updateMusicIcon() {
+        if (musicIcon) {
+            musicIcon.className = isMusicPlaying ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+        }
+    }
+
+    function playNextTrack() {
+        if (!backgroundMusic) return;
+        
+        currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+        backgroundMusic.src = tracks[currentTrackIndex];
+        
+        if (isMusicPlaying) {
+            backgroundMusic.play().catch(error => {
+                console.error('שגיאה בהשמעת השיר:', error);
+                showMessage('לא ניתן להפעיל את המוזיקה', 'error');
+            });
+        }
+        
+        // שמירת האינדקס הנוכחי
+        localStorage.setItem('currentTrackIndex', currentTrackIndex);
+        
+        // הצגת הודעת החלפת שיר
+        const trackName = tracks[currentTrackIndex].split('/').pop().replace('.mp3', '');
+        showMessage(`מנגן: ${trackName}`, 'track');
+    }
+
+    function initializeMusicPlayer() {
+        if (!backgroundMusic || !musicToggle) return;
+        
+        // Load saved state
+        const savedTrackIndex = localStorage.getItem('currentTrackIndex');
+        const savedMusicState = localStorage.getItem('musicPlaying');
+        const savedTime = localStorage.getItem('currentTime');
+
+        if (savedTrackIndex) {
+            currentTrackIndex = parseInt(savedTrackIndex);
+            backgroundMusic.src = tracks[currentTrackIndex];
+        }
+
+        if (savedTime) {
+            backgroundMusic.currentTime = parseFloat(savedTime);
+        }
+
+        if (savedMusicState !== null) {
+            isMusicPlaying = savedMusicState === 'true';
+        }
+
+        // Initial music state
+        updateMusicIcon();
+        if (isMusicPlaying) {
+            const playPromise = backgroundMusic.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.log('Cannot autoplay music:', error);
+                    isMusicPlaying = false;
+                    updateMusicIcon();
+                });
+            }
+        }
+
+        // Next track handling
+        backgroundMusic.addEventListener('ended', playNextTrack);
+
+        // Toggle music
+        musicToggle.addEventListener('click', function() {
+            if (isMusicPlaying) {
+                backgroundMusic.pause();
+                isMusicPlaying = false;
+            } else {
+                backgroundMusic.play().catch(error => {
+                    console.log('אין אפשרות להפעיל את המוזיקה:', error);
+                });
+                isMusicPlaying = true;
+            }
+            updateMusicIcon();
+            localStorage.setItem('musicPlaying', isMusicPlaying);
+        });
+
+        // Next track button
+        const nextTrackButton = document.getElementById('nextTrack');
+        if (nextTrackButton) {
+            nextTrackButton.addEventListener('click', function() {
+                // אם המוזיקה לא מנגנת, נפעיל אותה
+                if (!isMusicPlaying) {
+                    isMusicPlaying = true;
+                    updateMusicIcon();
+                    localStorage.setItem('musicPlaying', true);
+                }
+                playNextTrack();
+            });
+        }
+
+        // Save state before leaving
+        window.addEventListener('beforeunload', function() {
+            localStorage.setItem('musicPlaying', isMusicPlaying);
+            localStorage.setItem('currentTrackIndex', currentTrackIndex);
+            localStorage.setItem('currentTime', backgroundMusic.currentTime);
+        });
+    }
+
+    // טיפול בתפריט המבורגר
+    if (hamburger && navLinks) {
+        hamburger.addEventListener('click', function() {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // סגירת התפריט בלחיצה על קישור
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
+        // סגירת התפריט בלחיצה מחוץ לתפריט
+        document.addEventListener('click', (e) => {
+            if (!hamburger.contains(e.target) && !navLinks.contains(e.target)) {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            }
+        });
+
+        // סימון הקישור הנוכחי בתפריט
+        const currentPage = window.location.pathname;
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            if (link.getAttribute('href') === currentPage) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    // טיפול בסקציות
+    const sections = document.querySelectorAll('.section-content');
+    const sectionHeaders = document.querySelectorAll('.section-header');
+    
+    // Initialize all sections as collapsed
+    sections.forEach(section => {
+        section.style.maxHeight = '0';
+    });
+
+    // Add click handlers to all section headers
+    sectionHeaders.forEach(header => {
+        header.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const section = this.parentElement;
+            const content = section.querySelector('.section-content');
+            const icon = this.querySelector('i');
+
+            // Toggle the active class
+            content.classList.toggle('active');
+            
+            // Rotate the icon
+            if (icon) {
+                icon.style.transform = content.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0)';
+            }
+            
+            // Set max-height
+            content.style.maxHeight = content.classList.contains('active') ? content.scrollHeight + 'px' : '0';
+        });
+    });
+
+    // טיפול בטופס יצירת קשר
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', sendContactMessage);
+    }
+
+    // Initialize all functionality
+    function initialize() {
+        initializeMusicPlayer();
+        animateSections();
+    }
+
+    // Start initialization
+    initialize();
+});

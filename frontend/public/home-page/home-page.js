@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function playNextTrack() {
         currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
-        const audio = document.getElementById('backgroundMusic');
+        const audio = document.getElementById('backgroundMusic');ן
         audio.src = tracks[currentTrackIndex];
         
         if (isMusicPlaying) {

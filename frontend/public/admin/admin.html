@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <nav class="main-nav">
+    <nav class="main-nav" id="mainNav">
         <div class="nav-container">
             <div class="hamburger">
                 <span></span>
@@ -70,7 +70,7 @@
                     <label class="checkbox-label">
                         <input type="checkbox" id="rememberMe">
                         <span class="checkmark"></span>
-                        הישאר מחובר
+                        הישאר מחובר 
                     </label>
                 </div>
                 <div id="loginError" class="error-message" style="display: none;">
@@ -249,6 +249,28 @@
         <i class="fas fa-sign-out-alt"></i>
         התנתק
     </button>
+
+    <!-- כפתור רמקול למוזיקה -->
+    <div class="music-fab">
+        <button id="musicToggle" title="השמע/השתק מוזיקה">
+            <i class="fas fa-volume-up"></i>
+        </button>
+        <button id="nextTrack" title="שיר הבא">
+            <i class="fas fa-forward"></i>
+        </button>
+    </div>
+
+    <!-- אודיו מוסתר -->
+    <audio id="backgroundMusic" loop>
+        <source src="/music/חנן בן ארי - בשורות טובות.mp3" type="audio/mpeg">
+        <source src="/music/בלדה לגמל.mp3" type="audio/mpeg">
+        <source src="/music/גלי עטרי - דרך ארוכה.mp3" type="audio/mpeg">
+        <source src="/music/כוורת - היא כל כך יפה.mp3" type="audio/mpeg">
+        <source src="/music/אפרים ואסתר שמיר - ערב של יום בהיר.mp3" type="audio/mpeg">
+        <source src="/music/אריק סיני - דרך הכורכר.mp3" type="audio/mpeg">
+        הדפדפן שלך אינו תומך בנגן אודיו.
+    </audio>
+
 <!-- Logo Script Loader -->
    <script src="/src/logo-loader.js"></script>
 <!-- Main Script -->

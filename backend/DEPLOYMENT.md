@@ -32,7 +32,8 @@ NODE_ENV=development
 ```
 
 ## ניהול קבצים (Multer)
-- כל התמונות נשמרות אוטומטית ל-`public/uploads/products/`
+- כל התמונות נשמרות אוטומטית ל-`public/uploads/products/` //Development
+- כל התמונות עולות לענן Cloudinary // Production
 - אין צורך להגדיר ידנית את התיקיות
 - ודא שלשרת יכול לכתוב לתיקיית uploads
 

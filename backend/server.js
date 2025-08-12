@@ -8,9 +8,9 @@ const fs = require('fs');
 const multer = require('multer');
 const mongoose = require('mongoose');
 const productsRouter = require('./routes/products');
-const ordersRouter = require('./routes/orders');
+const ordersRouter = require('./routes/orders');categories
 const contactRouter = require('./routes/contact');
-const categoriesRouter = require('./routes/categories');
+const categoriesRouter = require('./routes/');
 const config = require('./config');
 
 // בדיקת משתני סביבה נדרשים
