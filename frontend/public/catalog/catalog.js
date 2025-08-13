@@ -346,16 +346,21 @@ function displayProducts(products) {
     productsList.innerHTML = products.map(product => {
         let imageGallery = '';
         // קביעת נתיב תמונה נכון
-      let imagePath = '';
-   if (product.image) {
-    // Full Cloudinary URL
-    if (product.image.startsWith('http')) {
+let imagePath = '';
+        if (product.image) {
+    // אם זה URL מלא (http או https) - אל תשנה אותו
+    if (/^https?:\/\//.test(product.image)) {
         imagePath = product.image;
-    } else {
-        // Local Pictures
+    } 
+    // אם כבר מתחיל בנתיב המקומי הנכון - השאר ככה
+    else if (product.image.startsWith('/uploads/products/')) {
+        imagePath = product.image;
+    } 
+    // אם זה נתיב יחסי - הוסף לו את הנתיב הבסיסי
+    else {
         imagePath = '/uploads/products/' + product.image.replace(/^\/uploads\//, '');
     }
-}
+  }
 
         // --- תמיכה בגלריה עבור מערך תמונות ---
         if (Array.isArray(product.images) && product.images.length > 1) {
