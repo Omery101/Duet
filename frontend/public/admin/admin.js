@@ -592,10 +592,22 @@ function displayProducts(products) {
         return '';
     }
         // קביעת נתיב תמונה נכון
-        let imagePath = '';
+let imagePath = '';
         if (product.image) {
-            imagePath = product.image.startsWith('/uploads/products/') ? product.image : '/uploads/products/' + product.image.replace(/^\/uploads\//, '');
-        }
+    // אם זה URL מלא (http או https) - אל תשנה אותו
+    if (/^https?:\/\//.test(product.image)) {
+        imagePath = product.image;
+    } 
+    // אם כבר מתחיל בנתיב המקומי הנכון - השאר ככה
+    else if (product.image.startsWith('/uploads/products/')) {
+        imagePath = product.image;
+    } 
+    // אם זה נתיב יחסי - הוסף לו את הנתיב הבסיסי
+    else {
+        imagePath = '/uploads/products/' + product.image.replace(/^\/uploads\//, '');
+    }
+  }
+
         if (editingProductId === product._id) {
 // מצב עריכה
             return `
