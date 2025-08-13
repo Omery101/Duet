@@ -8,7 +8,7 @@ const fs = require('fs');
 const multer = require('multer');
 const mongoose = require('mongoose');
 const productsRouter = require('./routes/products');
-const ordersRouter = require('./routes/orders');categories
+const ordersRouter = require('./routes/orders');
 const contactRouter = require('./routes/contact');
 const categoriesRouter = require('./routes/');
 const config = require('./config');
@@ -247,7 +247,7 @@ app.get('/', (req, res) => {
 });
 
 // הפעלת השרת
-const PORT = config.PORT;
+const PORT = process.env.PORT || config.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`🚀 השרת פועל על פורט ${PORT}`);
 }); 
