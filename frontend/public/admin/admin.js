@@ -581,7 +581,7 @@ async function loadProducts() {
 // הצגת מוצרים בטבלה
 function displayProducts(products) {
     const tbody = document.querySelector('#productsTable tbody');
-    if (!tbody) return;
+    if (!tbody) return; 
         if (!products || products.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7" class="no-data">לא נמצאו מוצרים</td></tr>';
             return;
@@ -1369,6 +1369,46 @@ document.addEventListener('DOMContentLoaded', function() {
         showMessage(`מנגן: ${trackName}`, 'track');
     }
 
+ // פונקציה להצגת הודעות
+    function showMessage(message, type = 'info') {
+        // אם זו הודעת החלפת שיר
+        if (type === 'track') {
+            const existingMessage = document.querySelector('.track-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'track-message';
+            messageDiv.innerHTML = `
+                <i class="fas fa-music"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(messageDiv);
+
+            // הפעלת האנימציה
+            setTimeout(() => messageDiv.classList.add('show'), 10);
+
+            // הסרת ההודעה אחרי 3 שניות
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+                setTimeout(() => messageDiv.remove(), 300);
+            }, 3000);
+            return;
+        }
+
+        // הודעות רגילות (שגיאה, הצלחה וכו')
+        const messageDiv = document.getElementById('messageDiv');
+        if (!messageDiv) return;
+        
+        messageDiv.textContent = message;
+        messageDiv.className = `message ${type}`;
+        messageDiv.style.display = 'block';
+
+    setTimeout(() => {
+        messageDiv.style.display = 'none';
+    }, 5000);
+}
     function initializeMusicPlayer() {
         if (!backgroundMusic || !musicToggle) return;
         
