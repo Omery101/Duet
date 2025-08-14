@@ -604,7 +604,7 @@ let imagePath = '';
     } 
     // אם זה נתיב יחסי - הוסף לו את הנתיב הבסיסי
     else {
-        imagePath = '/uploads/products/' + product.image.replace(/^\/uploads\//, '');
+        imagePath = product.image.replace(/^\/uploads\//, '');
     }
   }
 
