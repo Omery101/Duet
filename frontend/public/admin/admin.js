@@ -1379,6 +1379,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // הצגת הודעת החלפת שיר
         const trackName = tracks[currentTrackIndex].split('/').pop().replace('.mp3', '');
         showMessage(`מנגן: ${trackName}`, 'track');
+        backgroundMusic.addEventListener('ended', playNextTrack);
     }
 
  // פונקציה להצגת הודעות
