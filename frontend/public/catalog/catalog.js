@@ -346,6 +346,7 @@ function displayProducts(products) {
     productsList.innerHTML = products.map(product => {
         let imageGallery = '';
         // קביעת נתיב תמונה נכון
+       
 let imagePath = '';
         if (product.image) {
     // אם זה URL מלא (http או https) - אל תשנה אותו
@@ -366,7 +367,7 @@ let imagePath = '';
         if (Array.isArray(product.images) && product.images.length > 1) {
             // גלריה עבור מערך תמונות רגיל
             const images = product.images.map((img, idx) => {
-                let imgPath = img.startsWith('http')? img : img.startsWith('/uploads/products/')   ? img   : '/uploads/products/' + img.replace(/^\/uploads\//, '');
+                let imgPath = getImagePath(product.image);
                 return `
                     <div class="product-image-thumb${idx === 0 ? ' active' : ''}" data-img-idx="${idx}">
                         <img src="${imgPath}" alt="${product.name} ${idx + 1}" class="product-image">
