@@ -714,7 +714,7 @@ body {
 
 .info-section .section-content .info-item span {
     font-size: 1.1rem;
-    color: #2c3e50;
+    color: snow;
     flex: 1;
     padding: 0 10px;
 }
@@ -1430,11 +1430,13 @@ body {
 }
 
 .section-content {
-    background: rgba(41, 128, 185, 0.95); /* כחול בהיר יותר */
+    background: rgba(212, 238, 255, 0.95); /* כחול בהיר יותר */
+    border: 2px solid rgb(15, 255, 243);
     padding: 30px;
-    border-radius: 0 0 16px 16px;
+    border-radius: 8px 8px 16px 16px;
     position: relative;
     z-index: 2;
+    margin: 10px;
 }
 
 .info-item {
@@ -1457,9 +1459,9 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
+    width: 30px;
     height: 100%;
-    background: linear-gradient(to bottom, #3498db, #2ecc71);
+    background: linear-gradient(to bottom, #086aac, #2ecc71);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -1479,6 +1481,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 1px solid snow;
     border-radius: 12px;
     font-size: 1.2rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -1536,7 +1539,7 @@ body {
 .info-item:hover .info-item-value {
     border-color: rgba(255, 255, 255, 0.3);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.075);
 }
 
 @media (max-width: 768px) {
